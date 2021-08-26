@@ -1,11 +1,11 @@
 pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./FestivalNFT.sol";
-import "./FestivalMarketplace.sol";
+import "./PetsNFT.sol";
+import "./PetsMarketplace.sol";
 
-contract FestiveTicketsFactory is Ownable {
-    struct Festival {
+contract PetsFactory is Ownable {
+    struct Pets {
         string festName;
         string festSymbol;
         uint256 ticketPrice;
@@ -14,7 +14,7 @@ contract FestiveTicketsFactory is Ownable {
     }
 
     address[] private activeFests;
-    mapping(address => Festival) private activeFestsMapping;
+    mapping(address => Pets) private activeFestsMapping;
 
     event Created(address ntfAddress, address marketplaceAddress);
 
@@ -26,8 +26,8 @@ contract FestiveTicketsFactory is Ownable {
         uint256 ticketPrice,
         uint256 totalSupply
     ) public onlyOwner returns (address) {
-        FestivalNFT newFest =
-            new FestivalNFT(
+        PetsNFT newFest =
+            new PetsNFT(
                 festName,
                 festSymbol,
                 ticketPrice,
@@ -35,13 +35,13 @@ contract FestiveTicketsFactory is Ownable {
                 msg.sender
             );
 
-        FestivalMarketplace newMarketplace =
-            new FestivalMarketplace(token, newFest);
+        PetsMarketplace newMarketplace =
+            new PetsMarketplace(token, newFest);
 
         address newFestAddress = address(newFest);
 
         activeFests.push(newFestAddress);
-        activeFestsMapping[newFestAddress] = Festival({
+        activeFestsMapping[newFestAddress] = Pets({
             festName: festName,
             festSymbol: festSymbol,
             ticketPrice: ticketPrice,
