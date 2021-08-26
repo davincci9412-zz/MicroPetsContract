@@ -1,0 +1,107 @@
+{
+	"compiler": {
+		"version": "0.8.0+commit.c7dfd78e"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "contract FestToken",
+						"name": "token",
+						"type": "address"
+					},
+					{
+						"internalType": "contract FestivalNFT",
+						"name": "festival",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "buyer",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "ticketId",
+						"type": "uint256"
+					}
+				],
+				"name": "Purchase",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "purchaseTicket",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "ticketId",
+						"type": "uint256"
+					}
+				],
+				"name": "secondaryPurchase",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"FestiveTicketsFactory_flat.sol": "FestivalMarketplace"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"FestiveTicketsFactory_flat.sol": {
+			"keccak256": "0xcde4796855a8e54ced3fa593aa81b26c9afa09cc007f3a9f71eb8094005b0030",
+			"license": "GPL-3.0-or-later",
+			"urls": [
+				"bzz-raw://fa07101126bce74cb52bc44ab7eb019cab874471a3b150352b0248806275ca89",
+				"dweb:/ipfs/QmX7EQkJTeCTxQLETwRud4SqWqiqfmfHWTthHBq33KK5Rg"
+			]
+		}
+	},
+	"version": 1
+}
