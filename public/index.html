@@ -23,17 +23,7 @@
   <!-- built files will be auto injected -->
 </body>
 
-<script>
-  const hamburger = document.getElementById("hamburger");
-  hamburger.addEventListener("click", hamburgerOpen);
-  function hamburgerOpen() {
-    document.getElementById("header-link").className += " active";
-  }	
-  const hamburgerX = document.getElementById("close-btn");
-  hamburgerX.addEventListener("click", hamburgerClose);
-  function hamburgerClose() {
-    document.getElementById("header-link").classList.remove("active");
-  }	
+<script>  
   // See https://github.com/facebook/react/issues/20829#issuecomment-802088260
 	if (!crossOriginIsolated) SharedArrayBuffer = ArrayBuffer;
 </script>

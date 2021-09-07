@@ -3,7 +3,7 @@
  * Create Date : 8/16/2021
  * Email : snowfirst312@outlook.com
  * Skype : live:.cid.d66694e683af316e
- * Description : Spark project
+ * Description : MicroPets project
  */
 
 import React, { Component } from 'react';

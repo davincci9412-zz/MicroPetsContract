@@ -3,7 +3,7 @@
  * Create Date : 8/16/2021
  * Email : snowfirst312@outlook.com
  * Skype : live:.cid.d66694e683af316e
- * Description : Spark project
+ * Description : MicroPets project
  */
 
 import React, { useState } from 'react';
@@ -85,7 +85,7 @@ const LoginForm = ({ SigninOrUp, EventHandler, Errors }) => {
         <Box mt={[4, 4]} pb={[2,2]}>
           <h2 className="mb-3">{SigninOrUp}</h2>
           <Text display="block" mb={[3, 3]}>Please check that you are visiting the correct URL</Text> 
-          <Text display="block"><span className="text-success">https://</span>spark.minr.tech:3000/login</Text> 
+          <Text display="block"><span className="text-success">https://</span>MicroPets.minr.tech:3000/login</Text> 
         </Box>
         {/* Login Form */}
         <FormControl textAlign="left" mb="4%">

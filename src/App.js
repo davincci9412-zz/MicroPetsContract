@@ -3,57 +3,94 @@
  * Create Date : 8/16/2021
  * Email : snowfirst312@outlook.com
  * Skype : live:.cid.d66694e683af316e
- * Description : Spark project
+ * Description : MicroPets project
  */
 
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
+
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+import ReactNotification from 'react-notifications-component';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import store from './store';
 // import jwt_decode from 'jwt-decode';
 // import { setCurrentUser, logoutUser } from './actions/authActions';
 // import setAuthToken from './utils/setAuthToken';
 import Home from './pages/home';
+import Admin from './pages/admin';
 import Shop from './pages/shop';
 import Approve from './pages/approve';
 import Inventory from './pages/inventory';
 import Marketplace from './pages/marketplace';
-// import Register from './pages/register';
-// import Login from './pages/login';
-
-// Check for token to keep user logged in
-// if (localStorage.jwtToken) {
-//   // Set auth token header auth
-//   const token = localStorage.jwtToken;
-//   setAuthToken(token);
-//   // Decode token and get user info and exp
-//   const decoded = jwt_decode(token);
-//   // Set user and isAuthenticated
-//   store.dispatch(setCurrentUser(decoded));
-//   // Check for expired token
-//   const currentTime = Date.now() / 1000; // to get in milliseconds
-//   if (decoded.exp < currentTime) {
-//     // Logout user
-//     store.dispatch(logoutUser());
-
-//     // Redirect to login
-//     window.location.href = './login';
-//   }
-// } 
-
+import jsonData from './components/data.json';
 
 
 class App extends Component {
+  constructor() {
+    
+    super();
+    const loadData = JSON.parse(JSON.stringify(jsonData));
+
+    // new Promise((resolve, reject) => {
+    //   if (typeof window.ethereum !== 'undefined') {
+    //     window.ethereum.enable()
+    //       .then(() => {
+    //         resolve(
+    //           new Web3(window.ethereum)
+    //         );
+    //       })
+    //       .catch(e => {
+    //         reject(e);
+    //       });
+    //     return;
+    //   }
+    //   if (typeof window.web3 !== 'undefined') {
+    //     return resolve(
+    //       new Web3(window.web3.currentProvider)
+    //     );
+    //   }
+    //   resolve(new Web3('http://127.0.0.1:8545'));
+    // });
+    if (window.ethereum !== undefined) {
+      window.ethereum.on('accountsChanged', (accounts)=>{
+        if (accounts.length > 0) {
+          let adminLogin=false;
+          const temps =loadData[0].address.split(",");
+          temps.map((temp, i)=>{
+            if (accounts[0].toLowerCase() === temp.toLowerCase()) {
+              document.getElementById("admin").classList.remove("no-show");
+              adminLogin = true;
+            };
+            return i;
+          }) 
+          if (!adminLogin){
+            if (!document.getElementById("admin").classList.contains("no-show")){
+              document.getElementById("admin").className += " no-show";
+            }
+          }        
+        } else {
+          if (!document.getElementById("admin").classList.contains("no-show")){
+            document.getElementById("admin").className += " no-show";
+          }
+        }
+      });
+    }
+  }
+
   render() {
     return (
       <Provider store={store}>
         <Router>
-          <div className="App">            
+          <div className="App">    
+            <ReactNotification />   
+            <ToastContainer />     
             <Switch>
               {/* <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} /> */}
               <Route exact path="/" component={Home} />
               <Route exact path="/home" component={Home} />
+              <Route exact path="/admin" component={Admin} />
               <Route exact path="/shop" component={Shop} />
               <Route path="/approve/:productId" component={Approve} />
               <Route exact path="/inventory" component={Inventory} />
@@ -68,3 +105,4 @@ class App extends Component {
 }
 
 export default App;
+

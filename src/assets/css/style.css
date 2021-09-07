@@ -92,9 +92,6 @@ img {
     border-bottom: 1px solid #CEA31E;
 }
 header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
     padding: 10px 50px;
     background-color: #370157;
     position: fixed;
@@ -102,13 +99,18 @@ header {
     right: 0;
     left: 0;
     color: #EFE4FF;
-    z-index: 9999;    
+    z-index: 100;    
     box-shadow: 3px 3px 10px 1px #170137;
 }
 header .logo, .header-link, .approve-main {
     display:flex;
-    justify-content:center;
+    justify-content:space-between;
     align-items:center;
+    text-align:right;
+    padding:0;
+}
+header .navbar-collapse {
+    justify-content: flex-end;
 }
 .logo img {
     height: 55px;
@@ -118,21 +120,66 @@ header .logo, .header-link, .approve-main {
     font-size: 25px;
     font-family: 'creamson';
     margin: 0;
-    padding: 0;   
+    padding: 0; 
+    opacity:0.9;  
 }
-.header-link a{
-    margin-left: 30px;
-    border-bottom: 1px solid transparent;            
+.header-link a.logo:hover{
+    border-bottom: none;    
+    color:#06bb2d;  
+}
+.header-link a.active{
+    color: #06bb2d;
+    font-family: 'circular-black';
 }
 .header-link a:hover, .crumb a:hover {
     border-bottom: 1px solid #06bb2d;
     color:#06bb2d;
 }
-.hamburger, .close-btn {
-    display: none;
+.navbar-collapse a{
+    padding:0.5rem 1rem 0;
 }
-
-.main-body {
+.no-show, .no-display{
+    display:none;
+}
+.main-body{
+    width:100%;
+}
+.admin{
+    width:100%;
+    margin-top:75px;
+    padding:3%;
+}
+.admin .feature-item{
+    padding:50px 30px;
+    margin:0 auto;
+    text-align:center;
+}
+.admin .feature-item h2, .shop-main .inventory-title{
+    border-bottom: 3px solid #370157;
+    display: inline-block;
+    padding: 0 5%;
+    margin-bottom: 5%;
+}
+.btn-purple{
+    padding:8px 50px;
+    background: #370157;
+    color:white;
+    cursor:pointer;
+}
+.admin .thead{
+    color: #370157;
+}
+.admin .table thead th {
+    border-bottom: 1px solid #370157;
+}
+.admin .table td, .table th {
+    padding: 1.3rem 0.75rem;
+    border-top: none;
+}
+.table > tbody > tr:nth-child(odd) {
+    background-color: rgba(242, 242, 242, 0.5);
+}
+.home {
     width:100%;
     margin-top: 75px;
     background-image: url(../img/background-complete.png);
@@ -141,7 +188,25 @@ header .logo, .header-link, .approve-main {
     background-position-x: center;
     min-height:64vw;
 }
-.banner {
+.inventory{
+    width:100%;
+    margin-top: 75px;
+    background-image: url(../img/inventory.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position-x: center;
+}
+.loader{
+    position:fixed;
+    top:300px;
+    width:100%;
+    z-index:100;
+}
+.loader img{
+    margin:0 auto;
+    width:300px;
+}
+.banner-label {
     color: white;
     padding: 5% 4%;
     max-width: 730px;
@@ -162,12 +227,26 @@ header .logo, .header-link, .approve-main {
     width: fit-content;
     padding: 7px 30px;
     margin-right: 4%;    
+    cursor:pointer;
+    color:white;
 }
 .btn-yellow {
     background: rgb(255, 210, 8);
 }
 .btn-red {
     background: rgb(248, 72, 116);
+}
+.shop-item .btn-purple {
+    background: #370157;
+    margin: 0 auto;
+    width: 100%;
+    color: white;
+    cursor: pointer;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    padding:8px 5px;
 }
 .feature{
     max-width:1280px;
@@ -219,14 +298,26 @@ header .logo, .header-link, .approve-main {
 .friend-main a:last-child img{
     margin-right:0;
 }
+.modal-content{
+    padding:5%
+}
+.modal-content .h4, .modal-content label{
+    color:#370157;
+}
+.modal-content button{
+    cursor:pointer;
+}
 .shop-main{
     padding:12% 5% 5%;
+}
+.shop-main .row{
+    justify-content: center;
 }
 .shop-item {
     box-shadow: 1px 2px 10px 2px #370157;
     border-radius: 1rem;
-    padding: 10%;
-    background-color: yellow;
+    padding: 7% 5%;
+    background-color: white;
     margin: 15px 15px 15%;
     display: block;
     position: relative;
@@ -236,47 +327,74 @@ header .logo, .header-link, .approve-main {
 .shop-item:hover{
     transform:scale(1.02);   
 }
-.shop-item.pink{
-    background-color: deeppink;
-}
 .shop-item.blue{
     background-color: #001330;
 }
-.shop-item.blank{
-    background-color: transparent;
+.shop-item .crate{
+    width:200px;
+    margin:0 auto;
 }
-.shop-item .dog{    
-    border-radius: 200px;
-    padding: 15px;
-    height: 250px;
+.shop-item .dog, .modal-content .dog{    
+    border-radius: 20px;
+    border: 4px solid #370157;
     margin: 0 auto;
     background-color: #000;
+    width:100%;
 }
 .shop .item-content{
     font-size: 20px;
     display: flex;
     justify-content: space-between;
-    padding: 15% 0 0;
 }
-.shop .name {    
+.shop .on-sale{
+    border: 1px solid red;
+    width: 200px;
+    margin: 0 auto;
+    padding: 10px 0 5px;
+    border-radius: 10px;
+    color:#06bb2d;
+    ;
+}
+.shop .item-content .box-name, .shop .item-content .multi{
+    margin:0;
+}
+.shop .box-name{
+    color:#370157;
+    font-family:creamson;
+    font-size:2rem;
+}
+.shop .multi{
+    color: red;
+    vertical-align: top;
+    font-size: 2.2rem;
+    line-height:1.3;
+}
+.shop .multi img{
+    width: 26px;
+    display: inline-block;
+    padding: 10px 0 0 3px;
+}
+.name {    
     color: #370157;    
 }
-.pink .name, .blank .name, .blue .name{
+.blue .name{
     color:#06bb2d;
 }
+.shop .id{
+    color : red;
+    line-height:1.5;
+}
+
 .shop .price{
     color: red;
     vertical-align: top;
-    line-height: 1;
+    line-height: 1.2;
 }
-.shop .price img, .approve .price img{
+.price img, .price img{
     display: inline-block;
     width: 28px;
     top: -2px;
     position: relative;
-}
-.pink .price{
-    color: yellow;
 }
 .approve{    
     padding: 3% 15%;
@@ -326,7 +444,7 @@ header .logo, .header-link, .approve-main {
 	.shop-item {
         margin: 15px 10px 15%;
     }
-    .shop .name{
+    .name{
         font-size:1.4rem;
     }
     .shop .price{
@@ -339,27 +457,18 @@ header .logo, .header-link, .approve-main {
         display: block;
         text-align:center;
     }
-    .shop-item .dog {
-        height: 220px;
-    }
-}
-
-@media screen and (max-width: 1441px) {	
-	.shop-item .dog {
-        height: 200px;
-    }
 }
 
 @media screen and (max-width: 1281px) {
 	.shop-item {
         margin: 15px 0 15%;
     }
-    .shop-item .dog {
-        height: 180px;
-        border-radius:180px;
-    }
-    .shop .price img, .approve .price img {
+    .price img, .price img {
         width: 26px;
+    }
+    .col-md-3 {
+        flex: 0 0 50%;
+        max-width: 50%;
     }
 }
 @media screen and (max-width: 1025px) {
@@ -371,19 +480,36 @@ header .logo, .header-link, .approve-main {
         font-size: 16px;
         line-height: 1.2;
     }
-    .shop-item .dog {
-        height: 140px;
-        border-radius:140px;
-    }
-	.shop .name{
+	.name{
         font-size:1.2rem;
     }
     .shop .price{
         font-size:1.4rem;
     }
 }
-
+@media screen and (max-width: 991px) {
+    
+    .App .navbar-dark .navbar-toggler:focus,  .App .navbar-dark .navbar-toggler:active{
+        border-color: rgba(255, 255, 255,1);
+    }
+    .App .navbar-dark .navbar-toggler.collapsed {
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+    .navbar-toggler {
+        padding: 0.5rem 0.75rem;
+        margin: 0.25rem 0;
+    }
+    .header-link .navbar-collapse a {
+        padding: 1.5rem 0.25rem 0.5rem;
+        text-align:left;
+        border-bottom:none;
+    }
+}
 @media screen and (max-width: 768px) {
+    .col-md-3 {
+        max-width:100%;
+        flex:none;
+    }
     header {
         padding: 10px 4vw;    
     }
@@ -393,56 +519,13 @@ header .logo, .header-link, .approve-main {
     header .header-link.active {
         left: 0;
     }
-    .header-link{
-        padding: 20vw 15vw;
-        display: block;
-        position: fixed;
-        top: 0;
-        height: 100vh;
-        left: -100vw;
-        width: 100vw;
-        z-index: 99999;
-        background-color: #380058d2;
-        backdrop-filter: blur(10px);
-        font-size: 8vw;
-    }
-    .header-link .active {
-        left: 0;
-    }
-
-    .header-link a{
-        display: block;
-        margin-left: 0;
-    }
-    .header-link .close-btn {
-        display: block;
-        position: absolute;
-        top: 10vw;
-        right: 10vw;
-    }
-    .header-link img {
-        height: 8vw;
-    }
-    .header-link:hover {
-        border-bottom: 1px solid transparent;
-    }
-    .hamburger {
-        display: block;
-    }
-    .hamburger:hover{
-        cursor: pointer;
-    }
-    .hamburger img {
-        width: 50px;
-    }
-    .header-link a.close-btn:hover{
-        text-decoration:unset ;
-        cursor:pointer;
-        border:none;
-    }
     .banner {
         color: #370157;
-        margin: 400px 0 0;
+        padding: 400px 0 0;
+    }
+    .banner-label {
+        color: #370157;
+        margin-bottom:0;
     }
     .feature {
         padding: 0 15%;
@@ -454,30 +537,28 @@ header .logo, .header-link, .approve-main {
         font-size: 18px;
         line-height: 1.3;
     }
+    .shop-main {
+        padding: 0 15px;
+    }
     .shop-item {
         margin: 15px 10% 15%;
     }
-    .shop-item .dog {
-        height: 300px;
-        border-radius:300px;
-    }
-	.shop .name{
+	.name{
         font-size:1.8rem;
     }
     .shop .price{
         font-size:2rem;
     }
-    .shop .price img, .approve .price img {
+    .price img, .price img {
         width: 30px;
     }
-    .approve {
-        padding: 3% 5%;
-    }
 }
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 480px) {   
+    .App h2 {
+        font-size: 2.2rem;
+    } 
     .banner {
-        text-align: center;
-        margin:220px 0 0;
+        padding: 220px 0 0;
     }
     .banner h2{
         font-size:2rem;
@@ -493,29 +574,6 @@ header .logo, .header-link, .approve-main {
     .friend-main img {
         margin-right: 20px;
     }
-    .shop-item .dog {
-        height: 200px;
-        border-radius: 200px;
-    }
-    .approve-main{
-        display:block;
-    }
-    .approve .item-image {
-        border-top-left-radius: 1rem;
-        border-top-right-radius: 1rem;
-        border-bottom-left-radius:0;
-    }
-    .approve .item-image img {
-        margin: 0 auto;
-    }
-    .approve .item-content {
-        border-top-right-radius: 0;
-        border-bottom-left-radius: 1rem;
-        border-bottom-right-radius: 1rem;
-    }
-    .approve .item-content {
-        padding: 35px 10%;
-    }
 }
 @media screen and (max-width: 320px) {
     .logo img {
@@ -525,14 +583,8 @@ header .logo, .header-link, .approve-main {
     .logo p {
         font-size: 22px;
     }
-    .hamburger img {
-        width: 35px;
-    }
-    .main-body {
-        margin-top: 60px;
-    }
     .banner {
-        margin: 130px 0 0;
+        padding: 150px 0 0;
     }
     .banner h2 {
         font-size: 1.6rem;
@@ -544,7 +596,7 @@ header .logo, .header-link, .approve-main {
     .banner-btns {
         display: block;
     }
-    .banner-btns .btn, .approve-main .btn {
+    .banner-btns .btn {
         display: inline-block;
         margin: 0 auto 20px;
     }
@@ -558,21 +610,16 @@ header .logo, .header-link, .approve-main {
     .shop-item {
         margin: 15px 0 15%;
     }
-    .shop-item .dog {
-        height: 200px;
-        border-radius: 200px;
+    .shop-item .btn-purple{
+        padding:8px 5%;
+        font-size:1rem;
     }
-    .shop .name {
+    .name {
         font-size: 1.4rem;
     }
     .shop .price {
         font-size: 1.6rem;
     }
-    .approve .item-image img, .approve .item-content {
-        height: 260px;
-    }
-    .approve h4 {
-        font-size: 1.6rem;
-    }
+   
 
 }

@@ -3,7 +3,7 @@
  * Create Date : 8/16/2021
  * Email : snowfirst312@outlook.com
  * Skype : live:.cid.d66694e683af316e
- * Description : Spark project
+ * Description : MicroPets project
  */
 
 import React from 'react';
@@ -18,7 +18,19 @@ class ApproveContent extends React.Component {
     this.state = { datas: datasByRow};
   }
   
-  componentDidMount(temps) {
+  async componentDidMount(temps) {
+    if (window.ethereum !== undefined) {
+      if (window.ethereum.isConnected()) {  
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (Array.isArray(accounts)){
+          if (accounts[0].toLowerCase() === "0x23b6A96cE929eA950dA2338a3194584b9C5D9972".toLowerCase()) {
+            document.getElementById("admin").classList.remove("no-show");
+          };
+          this.setState({"status":true});
+        } 
+      }
+    } 
+
     //Get a product from DB
     axios.get(process.env.REACT_APP_SERVER_URL+'/shop/product', { params : {product_id:this.props.productId}}).then( async res => {
       const product = await res.data   

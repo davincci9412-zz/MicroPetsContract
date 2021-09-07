@@ -3,7 +3,7 @@
  * Create Date : 8/16/2021
  * Email : snowfirst312@outlook.com
  * Skype : live:.cid.d66694e683af316e
- * Description : Spark project
+ * Description : MicroPets project
  */
 
 import React, { Component } from 'react';
@@ -13,16 +13,6 @@ import { connect } from 'react-redux';
 import { logoutUser } from '../actions/authActions';
 
 const datasByRow = [];
-
-class Loading extends React.Component {
-  render(){
-	if (this.props.loading) {
-		return <div className="justify-content-center navbar mb-3"><img width="100" height="100" src="/2.gif" alt="Please wait for loading"/></div>
-	} else {
-		return <div></div>
-	}
-  }
-}
 
 class Process extends React.Component {
    
