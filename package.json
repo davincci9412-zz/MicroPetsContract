@@ -7,8 +7,7 @@
     "node": "14.17.4"
   },
   "dependencies": {
-    "@blockstack/ui": "^2.12.9",
-    "@walletconnect/web3-provider": "^1.6.5",
+	"@walletconnect/web3-provider": "^1.6.5",
     "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
     "block_io": "^4.0.0",
@@ -38,7 +37,7 @@
     "react-loader-spinner": "^4.0.0",
     "react-notifications-component": "^3.1.0",
     "react-promise-tracker": "^2.1.0",
-    "react-redux": "^5.1.1",
+    "react-redux": "^7.2.5",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
     "react-toastify": "^8.0.2",

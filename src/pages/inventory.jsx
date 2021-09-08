@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import { Flex } from '@blockstack/ui';
+//import { Flex } from '@blockstack/ui';
 
 import Menu from '../components/common/Menu.js';
 import InventoryContent from '../components/inventory/InventoryContent.js';
@@ -19,12 +19,12 @@ class Inventory extends Component {
 
   render() {
     return (
-      <Flex alignItems="stretch">
+      <div>
         <Menu ActivePage={3} />
         <div className="main-body">   
 		        <InventoryContent />
         </div>
-      </Flex>
+      </div>
     );
   }
 }

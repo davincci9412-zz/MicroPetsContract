@@ -7,7 +7,7 @@
  */
 
 import React, { Component } from 'react';
-import { Flex } from '@blockstack/ui';
+//import { Flex } from '@blockstack/ui';
 
 import Menu from '../components/common/Menu.js';
 import HomeContent from '../components/home/HomeContent.js';
@@ -22,12 +22,12 @@ class Index extends Component {
 
   render() {
     return (
-      <Flex alignItems="stretch">
+      <div>
         <Menu ActivePage={0} />
         <div className="main-body">
           <HomeContent />
         </div>
-      </Flex>
+      </div>
     );
   }
 }
