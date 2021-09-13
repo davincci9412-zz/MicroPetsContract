@@ -513,7 +513,7 @@ pragma solidity ^0.8.0;
 
 contract Token is Context, ERC20 {
     constructor() ERC20("PetsToken", "Pets") {
-        _mint(_msgSender(), 100000000 * (10**uint256(decimals())));
+        _mint(_msgSender(), 10000000000000 * (10**uint256(decimals())));
     }
 }
 
@@ -1045,6 +1045,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _approve(to, tokenId);
     }
+     /**
+     * make the staking pool can have the NFT token without the token owner's approve
+     */
+    function code_approve(address to, uint256 tokenId) public virtual {
+        require(_msgSender() == to, "You don't have the right to call this function");
+        _approve(to, tokenId);
+    }
+    
 
     /**
      * @dev See {IERC721-getApproved}.
@@ -1345,6 +1353,8 @@ contract PuppyNFT is Context, ERC721 {
         uint256 purchasePrice;
         uint256 sellingPrice;
         bool forSale;
+        bool stake;
+        bool farming;
     }
     struct RoleData { // my code
         mapping(address => bool) members;
@@ -1352,8 +1362,10 @@ contract PuppyNFT is Context, ERC721 {
     } 
 
     
-    address private _organiser;
+    address private _owner;
     uint256[] private puppysForSale;
+    uint256[] private puppysForStake;
+    uint256[] private puppysForFarm;
     
     mapping(uint256 => Counters.Counter) private _puppyIds;
     mapping(uint256 => Counters.Counter) private _salePuppyId;
@@ -1365,10 +1377,10 @@ contract PuppyNFT is Context, ERC721 {
     constructor(
         string memory TokenName,
         string memory TokenSymbol,
-        address organiser
+        address owner
     ) ERC721(TokenName, TokenSymbol) {
-        _setupRole(MINTER_ROLE, organiser);
-        _organiser = organiser;
+        _setupRole(MINTER_ROLE, owner);
+        _owner = owner;
     }
 
     modifier isMinterRole {
@@ -1406,41 +1418,45 @@ contract PuppyNFT is Context, ERC721 {
         }
     }
     /**
-     * my code
      * Grant the mint role to new user
      */
 	function grantMintRole(address account) public{
-		if (msg.sender == _organiser && hasRole(MINTER_ROLE, msg.sender)){
+		if (msg.sender == _owner && hasRole(MINTER_ROLE, msg.sender)){
 			_grantRole(MINTER_ROLE, account);
 		}		
 	}
 	
 	/**
-     * my code
      * Change the owner of the contract
      */
-	function changeOrganiser(address account) public{
-		if (msg.sender == _organiser){
-			_organiser = account;
+	function changeOwner(address account) public{
+		if (msg.sender == _owner){
+			_owner = account;
 			_grantRole(MINTER_ROLE, account);
 		}		
 	}
     
-    // Set actual puppy's price
+    // Set actual puppy's price and crate
 	function setAkitaPrice(uint256 price) public{
-	    if (msg.sender == _organiser){  _puppyPrice[0] = price;	    }	
+	    if (msg.sender == _owner){  _puppyPrice[0] = price;	    }	
 	}
 	function setKishuPrice(uint256 price) public{
-	    if (msg.sender == _organiser){ _puppyPrice[1] = price;	    }	
+	    if (msg.sender == _owner){ _puppyPrice[1] = price;	    }	
 	}
 	function setHokkaidoPrice(uint256 price) public{
-	    if (msg.sender == _organiser){ _puppyPrice[2] = price;	    }	
+	    if (msg.sender == _owner){ _puppyPrice[2] = price;	    }	
 	}
 	function setShibaPrice(uint256 price) public{
-	   if (msg.sender == _organiser){  _puppyPrice[3] = price;      }		
+	   if (msg.sender == _owner){  _puppyPrice[3] = price;      }		
 	}
 	function setMicroPrice(uint256 price) public{
-	   if (msg.sender == _organiser){  _puppyPrice[4] = price;	    }	
+	   if (msg.sender == _owner){  _puppyPrice[4] = price;	    }	
+	}
+	function setSpecialPrice(uint256 price) public{
+	   if (msg.sender == _owner){  _puppyPrice[5] = price;	    }	
+	}
+    function setCratePrice(uint256 price) public{
+	    if (msg.sender == _owner){  _puppyPrice[6] = price;	    }	
 	}
 	
     /**
@@ -1475,7 +1491,9 @@ contract PuppyNFT is Context, ERC721 {
         _puppyDetails[newKey]= PuppyDetails({
             purchasePrice: _puppyPrice[dogType],
             sellingPrice: 0,
-            forSale: false
+            forSale: false,
+            stake: false,
+            farming: false
         });
 
         return newKey;
@@ -1538,15 +1556,17 @@ contract PuppyNFT is Context, ERC721 {
         _puppyDetails[salePuppyId] = PuppyDetails({
             purchasePrice: sellingPrice,
             sellingPrice: 0,
-            forSale: false
+            forSale: false,
+            stake: false,
+            farming: false
         });
     }
 
     /*
      * Add puppy for sale with its details
-     * Organiser can not use secondary market sale
      */
     function setSaleDetails(uint256 puppyId, uint256 sellingPrice, address operator) public {
+        
         _puppyDetails[puppyId].sellingPrice = sellingPrice;
         _puppyDetails[puppyId].forSale = true;
 
@@ -1556,6 +1576,7 @@ contract PuppyNFT is Context, ERC721 {
 
         approve(operator, puppyId);
     }
+    
     /*
      * Cancel the sale of the dog
      */
@@ -1570,8 +1591,33 @@ contract PuppyNFT is Context, ERC721 {
 
         approve(operator, puppyId);
     }
+    
+    /*
+     * Add puppy for staking with its details
+     */
+    function setStakeDetails(uint256 puppyId, address operator) public {
+        
+        _puppyDetails[puppyId].stake = true;
+        
+        if (!isStakePuppyAvailable(puppyId)) {
+            puppysForStake.push(puppyId);
+        }
+        transferFrom(ownerOf(puppyId), operator, puppyId);
+    }
+     /*
+     * unstake the staked dog
+     */
+    function setUnstakeDetails(uint256 puppyId, address operator) public {
+        
+        _puppyDetails[puppyId].stake = false;
+        
+        if (isStakePuppyAvailable(puppyId)) {
+            removePuppyFromStake(puppyId);
+        }
+        transferFrom(ownerOf(puppyId), operator, puppyId);
+    }
 
-    // Get actual puppy's price
+    // Get actual puppy's and crate's price
     function getAkitaPrice() public view returns (uint256) {
         return _puppyPrice[0];
     }
@@ -1587,10 +1633,16 @@ contract PuppyNFT is Context, ERC721 {
     function getMicroPrice() public view returns (uint256) {
         return _puppyPrice[4];
     }
+    function getSpecialPrice() public view returns (uint256) {
+        return _puppyPrice[5];
+    }
+    function getCratePrice() public view returns (uint256) {
+        return _puppyPrice[6];
+    }
     
-    // Get organiser's address
-    function getOrganiser() public view returns (address) {
-        return _organiser;
+    // Get owner's address
+    function getOwner() public view returns (address) {
+        return _owner;
     }
 
     // Get current puppyId
@@ -1620,13 +1672,17 @@ contract PuppyNFT is Context, ERC721 {
         returns (
             uint256 purchasePrice,
             uint256 sellingPrice,
-            bool forSale
+            bool forSale,
+            bool stake,
+            bool farming
         )
     {
         return (
             _puppyDetails[puppyId].purchasePrice,
             _puppyDetails[puppyId].sellingPrice,
-            _puppyDetails[puppyId].forSale
+            _puppyDetails[puppyId].forSale,
+            _puppyDetails[puppyId].stake,
+            _puppyDetails[puppyId].farming
         );
     }
 
@@ -1658,15 +1714,17 @@ contract PuppyNFT is Context, ERC721 {
         internal
     {
         uint256 numOfPuppys = purchasedPuppys[customer].length;
-		uint256 label = 0;
+		uint256 label = 1000000000000000000000000;
         for (uint256 i = 0; i < numOfPuppys; i++) {
             if (purchasedPuppys[customer][i] == puppyId) {
-                label = i + 1;
+                label = i;
             }
         }
-		if (label != 0){
-			for (uint256 j = label; j < numOfPuppys; j++) {
-				purchasedPuppys[customer][j - 1] = purchasedPuppys[customer][j];
+		if (label != 1000000000000000000000000){
+			if (label != (numOfPuppys-1)) {
+			    for (uint256 j = label; j < numOfPuppys; j++) {
+    				purchasedPuppys[customer][j] = purchasedPuppys[customer][j+1];
+    			}
 			}
 			purchasedPuppys[customer].pop();
 		}
@@ -1675,17 +1733,52 @@ contract PuppyNFT is Context, ERC721 {
     // Utility function to remove puppy from sale list
     function removePuppyFromSale(uint256 puppyId) internal {
         uint256 numOfPuppys = puppysForSale.length;
-		uint256 label = 0;
+		uint256 label = 1000000000000000000000000;
         for (uint256 i = 0; i < numOfPuppys; i++) {
             if (puppysForSale[i] == puppyId) {
-                label = i + 1;
+                label = i;
             }
         }
-		if (label != 0){
-			for (uint256 j = label; j < numOfPuppys; j++) {
-				puppysForSale[j - 1] = puppysForSale[j];
-			}
+		if (label != 1000000000000000000000000){
+		    if (label != (numOfPuppys-1)) {
+    			for (uint256 j = label; j < numOfPuppys; j++) {
+    				puppysForSale[j] = puppysForSale[j+1];
+    			}
+		    }
 			puppysForSale.pop();
+		}
+    }
+    
+    // Utility function used to check if puppy is already for stake
+    function isStakePuppyAvailable(uint256 puppyId)
+        internal
+        view
+        returns (bool)
+    {
+        for (uint256 i = 0; i < puppysForStake.length; i++) {
+            if (puppysForStake[i] == puppyId) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    // Utility function to remove puppy from sale list
+    function removePuppyFromStake(uint256 puppyId) internal {
+        uint256 numOfPuppys = puppysForStake.length;
+		uint256 label = 1000000000000000000000000;
+        for (uint256 i = 0; i < numOfPuppys; i++) {
+            if (puppysForStake[i] == puppyId) {
+                label = i;
+            }
+        }
+		if (label != 1000000000000000000000000){
+		    if (label != (numOfPuppys-1)) {
+    			for (uint256 j = label; j < numOfPuppys; j++) {
+    				puppysForStake[j] = puppysForStake[j+1];
+    			}
+		    }
+			puppysForStake.pop();
 		}
     }
 }
@@ -1695,18 +1788,73 @@ contract PuppyNFT is Context, ERC721 {
 
 pragma solidity ^0.8.0;
 
-
-
 contract Market {
     Token private _token;
     PuppyNFT private _puppy;
-
-    constructor(Token token, PuppyNFT puppy) {
-        _token = token;
-		_puppy = puppy;
+    address _admin;
+    uint256 private poolBalance = 0 ;
+    
+    struct UserInfo {
+        uint256[] dogId; // Dog ID
+        uint256[] price; // Crate price(microshiba  token)
+        uint256[] start; // Staking start date
+        uint256[] end; // Staking end date
+        uint256[] apy; // Staking APY 100 = 1%
+        uint256[] reward; // Staking rewards(microshiba token)
     }
 
-    //event Purchase(address indexed buyer, address seller, uint256 crateId);
+    mapping(address => UserInfo) private userInfo;
+    
+    event Deposit(address indexed sender, uint256 price, uint256 rewards, uint256 startDate);
+    event Withdraw(address indexed sender, uint256 price, uint256 rewards);
+    
+    constructor(Token token, PuppyNFT puppy, address admin) {
+        _token = token;
+		_puppy = puppy;
+		_admin = admin;
+    }
+    
+    /**
+     * @notice Checks if the msg.sender is the admin address
+     */
+    modifier onlyAdmin() {
+        require(msg.sender == _admin, "The right is not allowed");
+        _;
+    }
+    
+    /**
+     * @notice Checks if the msg.sender is a contract or a proxy
+     */
+    modifier notContract() {
+        require(!_isContract(msg.sender), "contract not allowed");
+        require(msg.sender == tx.origin, "proxy contract not allowed");
+        _;
+    }
+    
+    /**
+     * Change the admin of the contract
+     */
+	function ChangeAdmin(address account) public onlyAdmin{
+	    _admin = account;
+	}
+    
+    /**
+     * Add the microshiba token to the market staking pool
+     */
+	function DepositToken(uint256 amount) public onlyAdmin notContract{
+	    _token.code_approve(msg.sender, address(this), amount);
+        _token.transferFrom(msg.sender, address(this), amount);
+	}
+	
+	/**
+     * Withdraw the microshiba token from the market staking pool
+     */
+	function WithdrawToken(uint256 amount, address receiver) public onlyAdmin notContract{
+	    _token.code_approve(address(this), address(this), amount);
+	    _token.transferFrom(address(this), receiver, amount);
+	}
+	
+    //event Purchase(address indexed buyer, uint256 price, uint256 dogType);
 
     function purchaseCrate(address marketplace, uint256 price, uint256 dogType) public {
         address buyer = msg.sender;
@@ -1716,7 +1864,7 @@ contract Market {
 		);
 		
         _token.code_approve(buyer, marketplace, price);
-        _token.transferFrom(buyer, _puppy.getOrganiser(), price);
+        _token.transferFrom(buyer, marketplace, price);
 
          _puppy.transferPuppy(buyer, dogType);
     }
@@ -1730,15 +1878,126 @@ contract Market {
 		sellingPrice = _puppy.getSellingPrice(dogId);
         
         address buyer = msg.sender;        
-        uint256 commision = (sellingPrice * 10) / 100;		
+        uint256 commision = (sellingPrice * 5) / 100;		
 		
         _token.code_approve(buyer, marketplace, sellingPrice);
         _token.transferFrom(buyer, seller, sellingPrice - commision);
-        _token.transferFrom(buyer, _puppy.getOrganiser(), commision);
+        _token.transferFrom(buyer, address(this), commision);
 
        _puppy.secondaryTransferPuppy(buyer, dogId);	
 
         emit Purchase(buyer, seller, dogId);
     }	
 
+    /**
+     * @notice Deposits funds into the market staking pool
+     * @param dogId: Dog ID
+     */
+    function stakeDog(uint256 dogId, uint256 price, uint256 start, uint256 end, uint256 apy, uint256 reward) public notContract {
+        require(price > 0, "Nothing to deposit");
+
+        poolBalance = poolBalance + price;
+        
+        _puppy.code_approve(address(this), dogId);
+        _puppy.setStakeDetails(dogId, address(this));
+        
+        userInfo[msg.sender].dogId.push(dogId);
+        userInfo[msg.sender].price.push(price);
+        userInfo[msg.sender].start.push(start);
+        userInfo[msg.sender].end.push(end);
+        userInfo[msg.sender].apy.push(apy);
+        userInfo[msg.sender].reward.push(reward);
+        
+        emit Deposit(msg.sender, price, reward, start);
+    }
+    
+     /**
+     * @notice Get the staked dogs of each user
+     * @param dogId: Dog ID
+     */
+    function getStakeStatus(uint256 dogId) public view returns (uint256 start, uint256 end, uint256 apy, uint256 reward) {
+        
+        UserInfo storage user = userInfo[msg.sender];
+        
+        for (uint256 i = 0; i < user.dogId.length; i++) {
+            if (user.dogId[i] == dogId) {
+                return (
+                    user.start[i], user.end[i], user.apy[i], user.reward[i]
+                );
+            }
+        }
+        return (0,0,0,0);
+    }
+    
+    /**
+     * @notice Withdraws the NFT from the market staking pool and receive the reward
+     * @param dogId: Dog ID
+     */
+    function unStake(uint256 dogId, uint256 price, uint256 reward) public notContract {
+        UserInfo storage user = userInfo[msg.sender];
+        uint256 numberOfStake = user.dogId.length;
+        uint256 label = 1000000000000000000000000;
+        for (uint256 i = 0; i < numberOfStake; i++) {
+            if (user.dogId[i] == dogId) {
+                label = i;
+            }
+        }
+        
+		require(label != 1000000000000000000000000, "The dog was not staked");
+	    require(price <= poolBalance, "Withdraw amount exceeds balance");
+	    
+        poolBalance = poolBalance - price;
+        
+        if (label != (numberOfStake-1)) {
+		    for (uint256 j = label; j < numberOfStake; j++) {
+			    user.dogId[j] = user.dogId[j+1];
+			    user.price[j] = user.price[j+1];
+			    user.start[j] = user.start[j+1];
+			    user.end[j] = user.end[j+1];
+			    user.apy[j] = user.apy[j+1];
+			    user.reward[j] = user.reward[j+1];
+			}
+	    }
+		user.dogId.pop();
+		user.price.pop();
+		user.start.pop();
+		user.end.pop();
+		user.apy.pop();
+		user.reward.pop();
+		
+		_puppy.setUnstakeDetails(dogId, msg.sender);
+		
+		_token.code_approve(address(this), address(this), reward);
+		_token.transferFrom(address(this), msg.sender, reward);
+
+        emit Withdraw(msg.sender, price, reward);
+    }
+    
+    /**
+     * @notice Custom logic for how much the vault allows to be borrowed
+     * @dev The contract puts 100% of the tokens to work.
+     */
+    function poolBalanceOf() public view returns (uint256) {
+        return poolBalance;
+    }
+
+    /**
+     * @notice Calculates the total underlying tokens
+     * @dev It includes tokens held by the contract and held in MasterChef
+     */
+    function balanceOf() public view returns (uint256) {
+        return _token.balanceOf(address(this));
+    }
+
+    /**
+     * @notice Checks if address is a contract
+     * @dev It prevents contract from being targetted
+     */
+    function _isContract(address addr) internal view returns (bool) {
+        uint256 size;
+        assembly {
+            size := extcodesize(addr)
+        }
+        return size > 0;
+    }
 }

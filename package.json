@@ -7,7 +7,7 @@
     "node": "14.17.4"
   },
   "dependencies": {
-	"@walletconnect/web3-provider": "^1.6.5",
+    "@walletconnect/web3-provider": "^1.6.5",
     "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
     "block_io": "^4.0.0",

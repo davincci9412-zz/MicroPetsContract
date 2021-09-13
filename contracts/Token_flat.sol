@@ -508,10 +508,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
 pragma solidity ^0.8.0;
 
-
-
 contract Token is Context, ERC20 {
     constructor() ERC20("PetsToken", "Pets") {
-        _mint(_msgSender(), 1000000 * (10**uint256(decimals())));
+        _mint(_msgSender(), 10000000000000 * (10**uint256(decimals())));
     }
 }

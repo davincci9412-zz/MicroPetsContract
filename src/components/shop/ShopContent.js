@@ -26,7 +26,7 @@ class ModalWindow extends React.Component {
   
   constructor(props) {
     super(props);
-    this.state = {show: false, new_name:''};
+    this.state = {show: false, new_name:'', type:0};
     this.handleShow = this.handleShow.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleSave = this.handleSave.bind(this);
@@ -96,7 +96,7 @@ class ShopContent extends React.Component {
   constructor(props) {
     super(props);
     const loadData = JSON.parse(JSON.stringify(jsonData));
-    this.state = { colors: colors, crates: [], data:loadData, loading:false}
+    this.state = { colors: colors, crates: [], data:loadData, cratePrice:0, displayPrice:0}
     web3 = new Web3(window.ethereum);
   }
 
@@ -130,16 +130,23 @@ class ShopContent extends React.Component {
     } 
     
     this.setState({marketplace:this.state.data[2].address});
-    this.setState({cratePrice: this.state.data[3].address});
+
+    const initiator = await web3.eth.getCoinbase();
+    let temp;
+    temp = await PuppyNFT.methods.getCratePrice().call({from: initiator});
+    this.setState({cratePrice: temp});
+    temp = web3.utils.fromWei(temp, 'ether');
+    if (temp > 1000000000){
+      temp = temp / 1000000000;
+      temp = temp.toString() + 'B';
+    } else if (temp > 1000000){
+      temp = temp / 1000000;
+      temp = temp.toString() + 'MM';
+    }
+    this.setState({displayPrice:temp})
     //this.setState({calculated: web3.utils.fromWei(cratePrice, 'ether')});
     //this.setState({amount: 1});
 
-  }
-
-  inputChangedHandler = (e) => {    
-      document.getElementById("amount").value = e.target.value;
-      const calculated = Number(e.target.value) * this.state.cratePrice;
-      document.getElementById("calculated").innerHTML = calculated;
   }
 
   onPurchaseCrate = async (marketplace, cratePrice) => {
@@ -157,21 +164,21 @@ class ShopContent extends React.Component {
       const min = 0;      
       const ranNumber = Math.floor(Math.random() * (max - min )) + 1;
       let type;
-      // if (ranNumber>0 && ranNumber<=20 ) type = 1;
-      // if (ranNumber>20 && ranNumber<=40 ) type = 2;
-      // if (ranNumber>40 && ranNumber<=60 ) type = 3;
-      // if (ranNumber>60 && ranNumber<=80 ) type = 4;
-      // if (ranNumber>80 ) type = 5;
-
-      if (ranNumber>0 && ranNumber<=50 ) type = 0;
-      if (ranNumber>50 && ranNumber<=80 ) type = 1;
-      if (ranNumber>80 && ranNumber<=95 ) type = 2;
-      if (ranNumber>95 && ranNumber<=99 ) type = 3;
-      if (ranNumber===100 ) type = 4;
+      // if (ranNumber>0 && ranNumber<=20 ) type = 0;
+      // if (ranNumber>20 && ranNumber<=40 ) type = 1;
+      // if (ranNumber>40 && ranNumber<=60 ) type = 2;
+      // if (ranNumber>60 && ranNumber<=80 ) type = 3;
+      // if (ranNumber>80 ) type = 4;
+      
+      if (ranNumber>0 && ranNumber<=40 ) type = 0;
+      if (ranNumber>40 && ranNumber<=65 ) type = 1;
+      if (ranNumber>65 && ranNumber<=85 ) type = 2;
+      if (ranNumber>85 && ranNumber<=95 ) type = 3;
+      if (ranNumber>95 && ranNumber<=99 ) type = 4;
+      if (ranNumber===100 ) type = 5;
       
       this.setState({type: type});
 
-      this.setState({loading : true})
       try {
         toast.info("Opening crate...", {position: toast.POSITION.BOTTOM_RIGHT,  autoClose:false});
         // await web3.eth.sendTransaction({
@@ -184,7 +191,7 @@ class ShopContent extends React.Component {
             from: initiator,
             to: marketplace,
             gas: 6700000,
-            data: Market.methods.purchaseCrate(marketplace, web3.utils.toWei(cratePrice, 'ether'), type).encodeABI()
+            data: Market.methods.purchaseCrate(marketplace, cratePrice, type).encodeABI()
             //data: Market.methods.purchaseCrate(crateId, number).encodeABI()
           }).on('receipt', async function(receipt){      
             toast.dismiss();    
@@ -232,7 +239,7 @@ class ShopContent extends React.Component {
               </video>
               <div className="item-content my-3">
                 <h5 className="name">COST</h5>
-                <h4 className="price"><img src="/img/logo.png" alt=""></img> {this.state.cratePrice}</h4>
+                <h4 className="price"><img src="/img/logo.png" alt=""></img> {this.state.displayPrice}</h4>
               </div>
               <button type="submit" className="btn btn-purple" onClick={this.onPurchaseCrate.bind(this, this.state.marketplace, this.state.cratePrice)}>BUY</button>
             </div>  

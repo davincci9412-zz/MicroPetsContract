@@ -11,7 +11,7 @@ class PuppyNFT {
     
     this.instance = new web3.eth.Contract(
       PuppyNFTABI.abi,
-      loadData[4].address
+      loadData[3].address
     );
   }
 

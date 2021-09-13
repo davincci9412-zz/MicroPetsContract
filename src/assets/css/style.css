@@ -102,11 +102,10 @@ header {
     z-index: 100;    
     box-shadow: 3px 3px 10px 1px #170137;
 }
-header .logo, .header-link, .approve-main {
+header .logo, .header-link, .display-between {
     display:flex;
     justify-content:space-between;
     align-items:center;
-    text-align:right;
     padding:0;
 }
 header .navbar-collapse {
@@ -221,7 +220,7 @@ header .navbar-collapse {
     display:flex;
     font-family: 'circular-bold';    
 }
-.banner-btns .btn, .approve-main .btn {
+.banner-btns .btn {
     display: block;
     border-radius: 40px;
     width: fit-content;
@@ -300,6 +299,26 @@ header .navbar-collapse {
 }
 .modal-content{
     padding:5%
+}
+.modal-content .date-box {
+    border: 1px solid purple;
+    background-color: white;
+    padding: 7px 4%;
+    color: red;
+}
+.modal-content .date-box:active, .modal-content .date-box:focus {
+    outline:none;
+    background-color:#ddd;
+}
+.date-box.left{
+    border-right: none;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+.date-box.right{
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 .modal-content .h4, .modal-content label{
     color:#370157;
@@ -401,11 +420,6 @@ header .navbar-collapse {
     color: white;
     font-size: 24px;
 }
-.approve-main {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
 .approve .item-image{
     border-top-left-radius: 1rem;
     border-bottom-left-radius: 1rem;
@@ -434,10 +448,6 @@ header .navbar-collapse {
 .approve h6{
     line-height: 1;
     vertical-align: text-top;
-}
-.approve-main .btn{
-    margin-top: 75px;
-    color: white;
 }
 
 @media screen and (max-width: 1680px) {

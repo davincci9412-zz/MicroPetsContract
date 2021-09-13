@@ -24,7 +24,7 @@ class MarketplaceContent extends React.Component {
   constructor(props) {
     super(props);
     const loadData = JSON.parse(JSON.stringify(jsonData));
-    this.state = { colors: colors, crates: [], data:loadData, dogs: [], marketplace: null,   price: null, loading:false}
+    this.state = { colors: colors, crates: [], data:loadData, dogs: [], marketplace: null,   price: null}
 
     try {
       web3 = new Web3(window.ethereum);
@@ -88,6 +88,15 @@ class MarketplaceContent extends React.Component {
       const puppys = await PuppyNFT.methods.getPuppysForSale().call();
       const puppy = await Promise.all(puppys.map(async (dogId, i) => {
         const { sellingPrice, forSale } = await PuppyNFT.methods.getPuppyDetails(dogId).call();
+        let displayPrice;
+        displayPrice = web3.utils.fromWei(sellingPrice, 'ether');
+        if (displayPrice > 1000000000){
+          displayPrice = displayPrice / 1000000000;
+          displayPrice = displayPrice.toString() + 'B';
+        } else if (displayPrice > 1000000){
+          displayPrice = displayPrice / 1000000;
+          displayPrice = displayPrice.toString() + 'MM';
+        }
         let name;
         let url;
         let rarity;
@@ -98,6 +107,7 @@ class MarketplaceContent extends React.Component {
         if (dogId.charAt(0) === "3") {   name = "Hokkaido"; url = "/img/dogs/hokkaido.mp4";    multi = 1.5;   rarity = "Rare" } 
         if (dogId.charAt(0) === "4") {   name = "Shiba";    url = "/img/dogs/shiba.mp4";       multi = 2;     rarity = "Epic"} 
         if (dogId.charAt(0) === "5") {   name = "Micro";    url = "/img/dogs/micro.mp4";       multi = 3;     rarity = "Legendary"} 
+        if (dogId.charAt(0) === "6") {name = "Special Editions";  url = "/img/dogs/santa.mp4"; multi = 4;     rarity="Special Editions"}; 
         if (forSale) {
           return (
             <div className="col-md-3" key={i}>
@@ -115,7 +125,7 @@ class MarketplaceContent extends React.Component {
                   <h6 className="price">NFT ID: {dogId}</h6>
                 </div>
                 <div className="text-center">
-                  <h4 className="price"><img src="/img/logo.png" alt=""></img> {web3.utils.fromWei(sellingPrice, 'ether')}</h4>
+                  <h4 className="price"><img src="/img/logo.png" alt=""></img> {displayPrice}</h4>
                 </div>
                 <div className="mt-4">                  
                   <button type="submit" className="btn btn-purple" onClick={this.onBuy.bind(this, dogId, sellingPrice)}>Buy</button>
@@ -137,7 +147,6 @@ class MarketplaceContent extends React.Component {
     const initiator = await web3.eth.getCoinbase();
     //const initiator = await web3.eth.getAccounts()[0];
     try {
-      this.setState({loading : true})
       const marketplace = this.state.data[2].address;
       toast.info("Buying the dog...", {position: toast.POSITION.BOTTOM_RIGHT,  autoClose:false});
 

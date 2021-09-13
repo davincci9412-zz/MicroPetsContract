@@ -9,6 +9,7 @@
  import React from 'react';
  import Web3 from 'web3';
  import PuppyNFT from '../../proxies/PuppyNFT';
+ import Market from '../../proxies/Market';
  import jsonData from '../data.json';
  import { toast } from 'react-toastify';
  
@@ -20,7 +21,7 @@ class AdminContent extends React.Component {
   constructor(props) {
     super(props);
     const loadData = JSON.parse(JSON.stringify(jsonData));
-    this.state = { temps: [], PuppyAddresses:"", MarketAddress:"", data:loadData, loading:false};
+    this.state = { temps: [], PuppyAddress:"", MarketAddress:"", data:loadData};
     web3 = new Web3(window.ethereum);    
   }
 
@@ -55,9 +56,14 @@ class AdminContent extends React.Component {
         window.ethereum.on('connect', window.ethereum.chainId);
       }
     } 
-         
+
+    const initiator = await web3.eth.getCoinbase();
+    const cratePrice = await PuppyNFT.methods.getCratePrice().call({from: initiator});
+    this.setState({price:web3.utils.fromWei(cratePrice, 'ether')});
+    document.getElementById("price").value=web3.utils.fromWei(cratePrice, 'ether');
+    
     this.setState({MarketAddress: this.state.data[2].address});         
-    this.setState({PuppyAddress: this.state.data[4].address});
+    this.setState({PuppyAddress: this.state.data[3].address});
     await this.updateTables();
   }
 
@@ -135,6 +141,19 @@ class AdminContent extends React.Component {
           <td className="center">{totalSupply - saleId}</td>
         </tr>;
         this.setState({micro:micro}); 
+
+        name = "Special Editions";
+        price = await PuppyNFT.methods.getSpecialPrice().call({from:initiator});
+        totalSupply = await PuppyNFT.methods.puppyCounts(5).call({from:initiator});
+        saleId = await PuppyNFT.methods.getNextSalePuppyId(5).call({from:initiator});
+        const special = <tr>
+          <td className="center">{name}</td>
+          <td className="center">{web3.utils.fromWei(price, 'ether')}</td>
+          <td className="center">{totalSupply}</td>
+          <td className="center">{saleId}</td>
+          <td className="center">{totalSupply - saleId}</td>
+        </tr>;
+        this.setState({special:special}); 
     } catch (err) {
       toast.dismiss();  
       toast.error("Error while fetching the crates", {position: toast.POSITION.BOTTOM_RIGHT,  autoClose:5000});
@@ -144,7 +163,6 @@ class AdminContent extends React.Component {
   onMint = async (e) => {
     try {
       toast.info("Minting new NFTs...", {position: toast.POSITION.BOTTOM_RIGHT,  autoClose:false});
-      this.setState({loading : true});
       e.preventDefault();
 
       const organiser = await web3.eth.getCoinbase();
@@ -205,6 +223,17 @@ class AdminContent extends React.Component {
               to:this.state.PuppyAddress,
               gas: 6700000,
               data:PuppyNFT.methods.bulkMintPuppys(supply, this.state.MarketAddress, 4).encodeABI()
+            }).on('receipt', async function(receipt){           
+              toast.dismiss();    
+              window.location.reload();
+            });
+            return false;
+          case "6":  
+            await web3.eth.sendTransaction({
+              from: organiser,
+              to:this.state.PuppyAddress,
+              gas: 6700000,
+              data:PuppyNFT.methods.bulkMintPuppys(supply, this.state.MarketAddress, 5).encodeABI()
             }).on('receipt', async function(receipt){           
               toast.dismiss();    
               window.location.reload();
@@ -275,16 +304,51 @@ class AdminContent extends React.Component {
                 window.location.reload();
               });
               return false;
+            case "6":  
+              await web3.eth.sendTransaction({
+                from: organiser,
+                to:this.state.PuppyAddress,
+                gas: 6700000,
+                data:PuppyNFT.methods.bulkMintPuppys(batchSupply, this.state.MarketAddress, 5).encodeABI()
+              }).on('receipt', async function(receipt){           
+                toast.dismiss();    
+                window.location.reload();
+              });
+              return false;
             default : return false;
           }
 
         }
       }
-      this.setState({loading : false});
       await this.updateTables();                
     } catch (err) {
       toast.dismiss();  
       toast.error("rror while minting new NFTs", {position: toast.POSITION.BOTTOM_RIGHT,  autoClose:5000});
+    }
+  }
+
+  onCrate = async (e) => {
+    try {
+      toast.info("Changing the crate price...", {position: toast.POSITION.BOTTOM_RIGHT,  autoClose:false});
+      e.preventDefault();
+
+      const organiser = await web3.eth.getCoinbase();
+      const { price } = this.state;
+          
+      await web3.eth.sendTransaction({
+        from: organiser,
+        to:this.state.PuppyAddress,
+        //to:this.state.MarketAddress,
+        gas: 6700000,
+        data:PuppyNFT.methods.setCratePrice(web3.utils.toWei(price, 'ether')).encodeABI()
+        //data:Market.methods.DepositToken(web3.utils.toWei(price, 'ether')).encodeABI()
+      }).on('receipt', async function(receipt){           
+        toast.dismiss();    
+        window.location.reload();
+      });        
+    } catch (err) {
+      toast.dismiss();  
+      toast.error(err.message, {position: toast.POSITION.BOTTOM_RIGHT,  autoClose:5000});
     }
   }
 
@@ -325,6 +389,7 @@ class AdminContent extends React.Component {
                       {this.state.hokkaido}
                       {this.state.shiba}
                       {this.state.micro}
+                      {this.state.special}
                     </tbody>
                   </table>   
                 </div>          
@@ -342,6 +407,7 @@ class AdminContent extends React.Component {
                         <option value="3" >Hokkaido</option>  
                         <option value="4" >Shiba</option>  
                         <option value="5" >Micro Shiba</option>  
+                        <option value="6" >Special Editions</option>  
                       </select>  
                     </div>
                     <div className="form-group mb-4">
@@ -350,6 +416,16 @@ class AdminContent extends React.Component {
                     </div>
                     <div className="text-center my-5">
                       <button type="submit" className="btn btn-purple" onClick={this.onMint}>MINT</button>
+                    </div>
+                  </div>
+                  <h2 className="my-5">CRATE PRICE</h2>
+                  <div className="text-left">
+                    <div className="form-group mb-4">
+                      <label>NEW PRICE : </label>
+                      <input id="price" name="price" placeholder="0" type="text" className="form-control" onChange={this.inputChangedHandler} />
+                    </div>
+                    <div className="text-center my-5">
+                      <button type="submit" className="btn btn-purple" onClick={this.onCrate}>CHANGE</button>
                     </div>
                   </div>
                 </div>                
